@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jewelry Management System</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        header h1 {
+            color: #8e44ad;
+        }
+        
+        .new-jewelry-btn {
+            background-color: #8e44ad;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .new-jewelry-btn:hover {
+            background-color: #7d3c98;
+        }
+        
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .category-btn {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .category-btn:hover, .category-btn.active {
+            background-color: #8e44ad;
+            color: white;
+            border-color: #8e44ad;
+        }
+        
+        .filters {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        
+        .filter-select {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .jewelry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .jewelry-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .jewelry-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .jewelry-img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #eee;
+            padding: 10px;
+        }
+        
+        .jewelry-details {
+            padding: 15px;
+        }
+        
+        .jewelry-name {
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .jewelry-category {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .card-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .edit-btn, .delete-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .edit-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .modal {
+            background-color: white;
+            border-radius: 10px;
+            width: 500px;
+            max-width: 90%;
+            padding: 20px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            color: #333;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .form-submit {
+            background-color: #8e44ad;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .form-submit:hover {
+            background-color: #7d3c98;
+        }
+        
+        .no-jewelry {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: #777;
+        }
+        
+        /* Toast notification */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 2000;
+        }
+        
+        .toast {
+            background-color: #2ecc71;
+            color: white;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: 350px;
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.3s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .toast-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .toast-title {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .toast-body {
+            font-size: 14px;
+        }
+        
+        .data-preview {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Jewelry Management System</h1>
+            <button class="new-jewelry-btn" id="newJewelryBtn">+ Add New Jewelry</button>
+        </header>
+        
+        <div class="categories">
+            <button class="category-btn active" data-category="all">All Jewelry</button>
+            <button class="category-btn" data-category="Face Jewelry">Face Jewelry</button>
+            <button class="category-btn" data-category="Ear Jewelry">Ear Jewelry</button>
+            <button class="category-btn" data-category="Neck Jewelry">Neck Jewelry</button>
+            <button class="category-btn" data-category="Hand Jewelry">Hand Jewelry</button>
+            <button class="category-btn" data-subcategory="ring">Rings</button>
+            <button class="category-btn" data-subcategory="bangle">Bangles</button>
+        </div>
+        
+        <div class="filters">
+            <select class="filter-select" id="sortFilter">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="az">A-Z</option>
+                <option value="za">Z-A</option>
+            </select>
+        </div>
+        
+        <div class="jewelry-grid" id="jewelryGrid">
+            <!-- Jewelry items will be loaded here dynamically -->
+            <div class="no-jewelry">
+                <h3>No jewelry items found</h3>
+                <p>Start by adding some jewelry items to your collection.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Jewelry Modal -->
+    <div class="modal-overlay" id="jewelryModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Add New Jewelry</h3>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <form id="jewelryForm">
+                <input type="hidden" id="jewelryId" name="jewelryId">
+                
+                <div class="form-group">
+                    <label for="jewelryType">Jewelry Type</label>
+                    <select class="form-select" id="jewelryType" name="jewelryType" required>
+                        <option value="">Select Jewelry Type</option>
+                        <option value="tikka">Tikka (Face Jewelry)</option>
+                        <option value="earrings">Earrings (Ear Jewelry)</option>
+                        <option value="necklace">Necklace (Neck Jewelry)</option>
+                        <option value="ring">Ring (Hand Jewelry)</option>
+                        <option value="bangle">Bangle (Hand Jewelry)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="jewelryName">Jewelry Name</label>
+                    <input type="text" class="form-control" id="jewelryName" name="jewelryName" placeholder="Enter jewelry name" required>
+                </div>
+                
+                <!-- Single image upload for most jewelry types -->
+                <div class="form-group" id="singleImageSection">
+                    <label for="jewelryImage">Jewelry Image</label>
+                    <input type="file" class="form-control" id="jewelryImage" name="jewelryImage" accept="image/*" required>
+                </div>
+                
+                <!-- Earrings specific fields (left and right images) -->
+                <div class="form-group earrings-field" style="display: none;">
+                    <label for="leftEarringImage">Left Earring Image</label>
+                    <input type="file" class="form-control" id="leftEarringImage" name="leftEarringImage" accept="image/*">
+                </div>
+                
+                <div class="form-group earrings-field" style="display: none;">
+                    <label for="rightEarringImage">Right Earring Image</label>
+                    <input type="file" class="form-control" id="rightEarringImage" name="rightEarringImage" accept="image/*">
+                </div>
+                
+                <div class="form-group">
+                    <label for="jewelryThumbnail">Jewelry Thumbnail</label>
+                    <input type="file" class="form-control" id="jewelryThumbnail" name="jewelryThumbnail" accept="image/*" required>
+                </div>
+                
+                <button type="submit" class="form-submit" id="submitBtn">Save Jewelry</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Toast notification container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <script>
+        // DOM elements
+        const jewelryGrid = document.getElementById('jewelryGrid');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const sortFilter = document.getElementById('sortFilter');
+        const newJewelryBtn = document.getElementById('newJewelryBtn');
+        const jewelryModal = document.getElementById('jewelryModal');
+        const closeModal = document.getElementById('closeModal');
+        const jewelryForm = document.getElementById('jewelryForm');
+        const jewelryType = document.getElementById('jewelryType');
+        const modalTitle = document.getElementById('modalTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const jewelryId = document.getElementById('jewelryId');
+        const toastContainer = document.getElementById('toastContainer');
+
+        // API endpoints - follow the same pattern as your user management project
+        const apiUrl = 'https://kdkpbjjeze.execute-api.ap-south-1.amazonaws.com/prod'; // Replace with your actual API Gateway URL
+        const API_ENDPOINTS = {
+            GET_ALL: `${apiUrl}/jewelry`,
+            JEWELRY_ACTIONS: `${apiUrl}/jewelry`, // Base endpoint for all jewelry actions
+            GET_UPLOAD_URL: `${apiUrl}/upload-url` // For S3 presigned URLs
+        };
+
+        // Array to store jewelry items
+        let jewelryData = [];
+
+        // Current filter state
+        let currentCategory = 'all';
+        let currentSort = 'newest';
+        let isEditMode = false;
+
+        // Load initial jewelry data on page load
+        fetchJewelryData();
+
+        // Event Listeners
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                console.log('Category button clicked:', btn.dataset.category || btn.dataset.subcategory);
+                
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                if (btn.dataset.category) {
+                    currentCategory = btn.dataset.category;
+                } else if (btn.dataset.subcategory) {
+                    currentCategory = btn.dataset.subcategory;
+                }
+                
+                loadJewelryItems();
+            });
+        });
+
+        sortFilter.addEventListener('change', () => {
+            console.log('Sort filter changed:', sortFilter.value);
+            currentSort = sortFilter.value;
+            loadJewelryItems();
+        });
+
+        newJewelryBtn.addEventListener('click', () => {
+            console.log('Add new jewelry button clicked');
+            isEditMode = false;
+            modalTitle.textContent = 'Add New Jewelry';
+            submitBtn.textContent = 'Save Jewelry';
+            jewelryForm.reset();
+            jewelryId.value = '';
+            showModal();
+        });
+
+        closeModal.addEventListener('click', hideModal);
+
+        // Close modal when clicking outside
+        jewelryModal.addEventListener('click', (e) => {
+            if (e.target === jewelryModal) {
+                hideModal();
+            }
+        });
+
+        jewelryType.addEventListener('change', () => {
+            console.log('Jewelry type changed:', jewelryType.value);
+            
+            const earringsFields = document.querySelectorAll('.earrings-field');
+            const singleImageSection = document.getElementById('singleImageSection');
+            
+            if (jewelryType.value === 'earrings') {
+                earringsFields.forEach(field => field.style.display = 'block');
+                singleImageSection.style.display = 'none';
+                
+                // Make left and right earring images required
+                document.getElementById('leftEarringImage').setAttribute('required', '');
+                document.getElementById('rightEarringImage').setAttribute('required', '');
+                document.getElementById('jewelryImage').removeAttribute('required');
+            } else {
+                earringsFields.forEach(field => field.style.display = 'none');
+                singleImageSection.style.display = 'block';
+                
+                // Make single jewelry image required
+                document.getElementById('jewelryImage').setAttribute('required', '');
+                document.getElementById('leftEarringImage').removeAttribute('required');
+                document.getElementById('rightEarringImage').removeAttribute('required');
+            }
+        });
+
+        jewelryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log('Form submitted');
+            
+            // Show loading toast
+            showToast('Processing', 'Processing your request...', null, 'info');
+            
+            try {
+                // Get the jewelry type and name from the form
+                const jewelryTypeValue = document.getElementById('jewelryType').value;
+                const jewelryName = document.getElementById('jewelryName').value;
+                
+                // Determine if we're editing or creating
+                const isEditing = jewelryId.value !== '';
+                
+                // First, handle image uploads and get S3 URLs
+                let imageUrls = {};
+                
+                // For earrings, we need to handle left and right images
+                if (jewelryTypeValue === 'earrings') {
+                    if (document.getElementById('leftEarringImage').files.length > 0) {
+                        const leftImageUrl = await uploadFileToS3(
+                            document.getElementById('leftEarringImage').files[0], 
+                            `ear/left/${Date.now()}_${document.getElementById('leftEarringImage').files[0].name}`
+                        );
+                        imageUrls.left = leftImageUrl;
+                    }
+                    
+                    if (document.getElementById('rightEarringImage').files.length > 0) {
+                        const rightImageUrl = await uploadFileToS3(
+                            document.getElementById('rightEarringImage').files[0], 
+                            `ear/right/${Date.now()}_${document.getElementById('rightEarringImage').files[0].name}`
+                        );
+                        imageUrls.right = rightImageUrl;
+                    }
+                } else {
+                    // For all other jewelry types, handle the single image
+                    if (document.getElementById('jewelryImage').files.length > 0) {
+                        const folder = getImageFolderPath(jewelryTypeValue);
+                        const imageUrl = await uploadFileToS3(
+                            document.getElementById('jewelryImage').files[0], 
+                            `${folder}/${Date.now()}_${document.getElementById('jewelryImage').files[0].name}`
+                        );
+                        imageUrls.image = imageUrl;
+                    }
+                }
+                
+                // Handle thumbnail for all jewelry types
+                if (document.getElementById('jewelryThumbnail').files.length > 0) {
+                    const folder = getImageFolderPath(jewelryTypeValue, true);
+                    const thumbnailUrl = await uploadFileToS3(
+                        document.getElementById('jewelryThumbnail').files[0], 
+                        `${folder}/${Date.now()}_${document.getElementById('jewelryThumbnail').files[0].name}`
+                    );
+                    imageUrls.thumbnail = thumbnailUrl;
+                }
+                
+                // Create the jewelry data object with constants based on jewelry type
+                const jewelryData = createJewelryDataObject(jewelryTypeValue, jewelryName, imageUrls);
+                
+                console.log('Jewelry data to submit:', jewelryData);
+                
+                // Call the appropriate API endpoint based on whether we're creating or updating
+                let response;
+                if (isEditing) {
+                    response = await fetch(`${API_ENDPOINTS.JEWELRY_ACTIONS}?action=update&jewelryId=${jewelryId.value}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(jewelryData)
+                    });
+                } else {
+                    response = await fetch(API_ENDPOINTS.JEWELRY_ACTIONS, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(jewelryData)
+                    });
+                }
+                
+                // Check if response is successful
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Error Response:', errorText);
+                    throw new Error(`Server returned ${response.status}: ${errorText}`);
+                }
+                
+                // Parse response data
+                const responseData = await response.json();
+                console.log('API response:', responseData);
+                
+                // Refresh data and show success message
+                fetchJewelryData();
+                hideModal();
+                
+                // Show success toast
+                showToast(
+                    isEditing ? 'Updated' : 'Created', 
+                    `Jewelry ${isEditing ? 'updated' : 'created'} successfully!`,
+                    jewelryData
+                );
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                showToast('Error', `Failed to save jewelry: ${error.message}`, null, 'error');
+            }
+        });
+
+        // Helper function to upload a file to S3 via Lambda function
+        async function uploadFileToS3(file, key) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = async () => {
+                    try {
+                        // Extract base64 data from the FileReader result
+                        const base64Data = reader.result.split(',')[1];
+                        
+                        // Send the file to our Lambda function
+                        const response = await fetch(API_ENDPOINTS.GET_UPLOAD_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                fileName: key,
+                                contentType: file.type,
+                                fileContent: base64Data
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`Failed to upload: ${errorText}`);
+                        }
+                        
+                        const data = await response.json();
+                        console.log('File uploaded successfully');
+                        
+                        // Return the public URL
+                        resolve(data.imageUrl);
+                    } catch (error) {
+                        console.error('Error uploading file:', error);
+                        reject(error);
+                    }
+                };
+                
+                reader.onerror = () => {
+                    reject(new Error('Failed to read file'));
+                };
+                
+                // Read file as data URL (base64)
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Helper function to get folder path for images based on jewelry type
+        function getImageFolderPath(jewelryType, isThumbnail = false) {
+            const baseFolder = isThumbnail ? 'thumbnails' : 'images';
+            
+            switch(jewelryType) {
+                case 'tikka':
+                    return `${baseFolder}/face`;
+                case 'earrings':
+                    return `${baseFolder}/ear`;
+                case 'necklace':
+                    return `${baseFolder}/neck`;
+                case 'ring':
+                    return `${baseFolder}/hand/ring`;
+                case 'bangle':
+                    return `${baseFolder}/hand/bangle`;
+                default:
+                    return baseFolder;
+            }
+        }
+
+        // Helper function to create jewelry data object with appropriate constants
+        function createJewelryDataObject(jewelryType, name, imageUrls) {
+            const timestamp = new Date().toISOString();
+            
+            // Start with common properties
+            const data = {
+                name: name,
+                createdAt: timestamp,
+                updatedAt: timestamp
+            };
+            
+            // Add image URLs if they exist
+            if (imageUrls.image) data.image = imageUrls.image;
+            if (imageUrls.left) data.left = imageUrls.left;
+            if (imageUrls.right) data.right = imageUrls.right;
+            if (imageUrls.thumbnail) data.thumbnail = imageUrls.thumbnail;
+            
+            // Add type-specific constants
+            switch(jewelryType) {
+                case 'tikka':
+                    Object.assign(data, {
+                        type: 'single',
+                        landmark: 151,
+                        offset: { x: 0, y: 0 },
+                        defaultScale: 1.3,
+                        group: 'face',
+                        category: 'Face Jewelry'
+                    });
+                    break;
+                    
+                case 'earrings':
+                    Object.assign(data, {
+                        type: 'earrings',
+                        landmarks: [177, 401],
+                        offset: { x: -5, y: 0 },
+                        defaultScale: 1.5,
+                        gap: 0,
+                        group: 'ear',
+                        category: 'Ear Jewelry'
+                    });
+                    break;
+                    
+                case 'necklace':
+                    Object.assign(data, {
+                        type: 'necklace',
+                        offset: { x: 0, y: 0 },
+                        defaultScale: 0.55,
+                        group: 'neck',
+                        category: 'Neck Jewelry'
+                    });
+                    break;
+                    
+                case 'ring':
+                    Object.assign(data, {
+                        type: 'hand',
+                        landmark: 'custom',
+                        fingerIndex: 8,
+                        handIndex: 0,
+                        offset: { x: 0, y: 0 },
+                        defaultScale: 0.2,
+                        group: 'hand',
+                        category: 'Hand Jewelry',
+                        subcategory: 'ring'
+                    });
+                    break;
+                    
+                case 'bangle':
+                    Object.assign(data, {
+                        type: 'hand',
+                        landmark: 'custom',
+                        wristIndex: 0,
+                        handIndex: 0,
+                        offset: { x: 0, y: 0 },
+                        defaultScale: 0.35,
+                        group: 'hand',
+                        category: 'Hand Jewelry',
+                        subcategory: 'bangle'
+                    });
+                    break;
+            }
+            
+            return data;
+        }
+
+        // Function to fetch jewelry data from API
+        async function fetchJewelryData() {
+            console.log('Fetching jewelry data from API');
+            
+            try {
+                const response = await fetch(API_ENDPOINTS.GET_ALL);
+                
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('API data received:', data);
+                
+                jewelryData = data.items || data; // Handle both formats: { items: [] } or just []
+                loadJewelryItems();
+                
+            } catch (error) {
+                console.error('Error fetching jewelry data:', error);
+                showToast('Error', `Failed to load jewelry data: ${error.message}`, null, 'error');
+                
+                // Show empty state
+                jewelryGrid.innerHTML = `
+                    <div class="no-jewelry">
+                        <h3>Could not load jewelry items</h3>
+                        <p>There was an error loading your jewelry items. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Function to load and filter jewelry items
+        function loadJewelryItems() {
+            console.log('Loading jewelry items with filter:', currentCategory, 'and sort:', currentSort);
+            
+            // Filter by category
+            let filteredItems = jewelryData;
+            
+            if (currentCategory !== 'all') {
+                if (['ring', 'bangle'].includes(currentCategory)) {
+                    // Filter by subcategory for Hand Jewelry
+                    filteredItems = jewelryData.filter(item => 
+                        item.subcategory === currentCategory
+                    );
+                } else {
+                    // Filter by main category
+                    filteredItems = jewelryData.filter(item => 
+                        item.category === currentCategory
+                    );
+                }
+            }
+            
+            // Sort items
+            switch (currentSort) {
+                case 'newest':
+                    filteredItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    break;
+                case 'oldest':
+                    filteredItems.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                    break;
+                case 'az':
+                    filteredItems.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'za':
+                    filteredItems.sort((a, b) => b.name.localeCompare(a.name));
+                    break;
+            }
+            
+            console.log('Filtered items:', filteredItems.length);
+            
+            // Clear current grid
+            jewelryGrid.innerHTML = '';
+            
+            // Display items or "no items" message
+            if (filteredItems.length === 0) {
+                jewelryGrid.innerHTML = `
+                    <div class="no-jewelry">
+                        <h3>No jewelry items found</h3>
+                        <p>Try a different category or add some jewelry items.</p>
+                    </div>
+                `;
+            } else {
+                filteredItems.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'jewelry-card';
+                    
+                    // Determine what image to display
+                    let imageUrl = item.image;
+                    if (item.type === 'earrings') {
+                        imageUrl = item.left; // Show left earring as preview
+                    }
+                    
+                    card.innerHTML = `
+                        <img src="${imageUrl}" alt="${item.name}" class="jewelry-img">
+                        <div class="jewelry-details">
+                            <h3 class="jewelry-name">${item.name}</h3>
+                            <p class="jewelry-category">${item.category}${item.subcategory ? ' - ' + item.subcategory.charAt(0).toUpperCase() + item.subcategory.slice(1) : ''}</p>
+                            <div class="card-actions">
+                                <button class="edit-btn" data-id="${item.jewelryId}">Edit</button>
+                                <button class="delete-btn" data-id="${item.jewelryId}">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    jewelryGrid.appendChild(card);
+                });
+                
+                // Add event listeners to edit and delete buttons
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', () => editJewelry(btn.dataset.id));
+                });
+                
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', () => deleteJewelry(btn.dataset.id));
+                });
+            }
+        }
+
+        // Function to edit jewelry item
+        function editJewelry(id) {
+            console.log('Editing jewelry:', id);
+            isEditMode = true;
+            const item = jewelryData.find(item => item.jewelryId === id);
+            
+            if (item) {
+                modalTitle.textContent = 'Edit Jewelry';
+                submitBtn.textContent = 'Update Jewelry';
+                
+                jewelryId.value = item.jewelryId;
+                document.getElementById('jewelryName').value = item.name;
+                
+                // Set jewelry type based on category/type
+                if (item.type === 'single' && item.group === 'face') {
+                    jewelryType.value = 'tikka';
+                } else if (item.type === 'earrings') {
+                    jewelryType.value = 'earrings';
+                } else if (item.type === 'necklace') {
+                    jewelryType.value = 'necklace';
+                } else if (item.type === 'hand') {
+                    if (item.subcategory === 'ring') {
+                        jewelryType.value = 'ring';
+                    } else {
+                        jewelryType.value = 'bangle';
+                    }
+                }
+                
+                // Trigger change event to show/hide appropriate fields
+                const event = new Event('change');
+                jewelryType.dispatchEvent(event);
+                
+                // Don't require file uploads for edits
+                document.getElementById('jewelryImage').removeAttribute('required');
+                document.getElementById('leftEarringImage').removeAttribute('required');
+                document.getElementById('rightEarringImage').removeAttribute('required');
+                document.getElementById('jewelryThumbnail').removeAttribute('required');
+                
+                showModal();
+            }
+        }
+
+        // Function to delete jewelry item
+        async function deleteJewelry(id) {
+            console.log('Deleting jewelry:', id);
+            
+            if (confirm('Are you sure you want to delete this jewelry item?')) {
+                try {
+                    // Show loading toast
+                    showToast('Processing', 'Deleting jewelry item...', null, 'info');
+                    
+                    const response = await fetch(`${API_ENDPOINTS.JEWELRY_ACTIONS}?action=delete&jewelryId=${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({}) // Empty body but required for API Gateway to pass to Lambda
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    // Find the deleted item to show in the success toast
+                    const deletedItem = jewelryData.find(item => item.jewelryId === id);
+                    
+                    // Refresh data
+                    fetchJewelryData();
+                    
+                    // Show success toast
+                    showToast('Success', 'Jewelry deleted successfully', deletedItem);
+                    
+                } catch (error) {
+                    console.error('Error deleting jewelry:', error);
+                    showToast('Error', `Failed to delete jewelry: ${error.message}`, null, 'error');
+                }
+            }
+        }
+
+        // Function to show a toast notification
+        function showToast(title, message, data, type = 'success') {
+            // Remove any existing toast with 'Processing' type
+            document.querySelectorAll('.toast').forEach(t => {
+                if (t.dataset.title === 'Processing') {
+                    t.remove();
+                }
+            });
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.dataset.title = title;
+            
+            // Set background color based on type
+            if (type === 'error') {
+                toast.style.backgroundColor = '#e74c3c';
+            } else if (type === 'info') {
+                toast.style.backgroundColor = '#3498db';
+            }
+            
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <span class="toast-title">${title}</span>
+                    <button class="toast-close">&times;</button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                    ${data ? `
+                        <div class="data-preview">
+                            ${JSON.stringify(data, null, 2)}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Force reflow to enable transition
+            toast.offsetHeight;
+            
+            // Show the toast
+            toast.classList.add('show');
+            
+            // Add event listener to close button
+            toast.querySelector('.toast-close').addEventListener('click', () => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            });
+            
+            // Auto close after 15 seconds (except for "processing" toasts)
+            if (type !== 'info') {
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.classList.remove('show');
+                        setTimeout(() => {
+                            if (toast.parentNode) {
+                                toast.remove();
+                            }
+                        }, 300);
+                    }
+                }, 15000);
+            }
+        }
+
+        // Helper functions to show/hide modal
+        function showModal() {
+            jewelryModal.style.display = 'flex';
+        }
+
+        function hideModal() {
+            jewelryModal.style.display = 'none';
+        }
+
+        console.log('Jewelry Management System initialized');
+    </script>
+</body>
+</html>
