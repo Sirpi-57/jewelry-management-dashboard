@@ -309,6 +309,110 @@
             white-space: pre-wrap;
             word-break: break-all;
         }
+
+        /* Add these CSS rules inside your existing <style> section */
+
+        .bg-removal-container {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bg-removal-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+            align-items: center;
+        }
+
+        .preview-image-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .preview-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+            padding: 5px;
+            font-size: 12px;
+        }
+
+        .bg-removal-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .bg-process-btn {
+            background-color: #8e44ad;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .bg-process-btn:hover {
+            background-color: #7d3c98;
+        }
+
+        .bg-process-btn:disabled {
+            background-color: #d1c4e9;
+            cursor: not-allowed;
+        }
+
+        .bg-accept-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .bg-accept-btn:hover {
+            background-color: #27ae60;
+        }
+
+        .bg-remove-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            margin-right: 5px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -355,6 +459,11 @@
             </div>
             <form id="jewelryForm">
                 <input type="hidden" id="jewelryId" name="jewelryId">
+
+                <div class="form-group">
+                    <label for="uniqueJewelryId">Unique Jewelry ID</label>
+                    <input type="text" class="form-control" id="uniqueJewelryId" name="uniqueJewelryId" placeholder="Enter unique jewelry ID" required>
+                </div>
                 
                 <div class="form-group">
                     <label for="jewelryType">Jewelry Type</label>
@@ -378,16 +487,79 @@
                     <label for="jewelryImage">Jewelry Image</label>
                     <input type="file" class="form-control" id="jewelryImage" name="jewelryImage" accept="image/*" required>
                 </div>
+
+                <div class="bg-removal-container" id="singleImageBgRemoval" style="display: none;">
+                    <div class="bg-removal-actions">
+                        <button type="button" class="bg-process-btn" id="removeBgBtn">Remove Background</button>
+                    </div>
+                    <div class="bg-removal-preview" id="bgRemovalPreview" style="display: none;">
+                        <div class="preview-image-container">
+                            <img src="" alt="Original Image" class="preview-image" id="originalPreview">
+                            <div class="preview-label">Original</div>
+                        </div>
+                        <div class="preview-image-container">
+                            <img src="" alt="Processed Image" class="preview-image" id="processedPreview">
+                            <div class="preview-label">Background Removed</div>
+                        </div>
+                        <button type="button" class="bg-accept-btn" id="acceptBgRemovalBtn">Use This Image</button>
+                    </div>
+                </div>
                 
                 <!-- Earrings specific fields (left and right images) -->
                 <div class="form-group earrings-field" style="display: none;">
                     <label for="leftEarringImage">Left Earring Image</label>
                     <input type="file" class="form-control" id="leftEarringImage" name="leftEarringImage" accept="image/*">
                 </div>
+
+                <!-- For the left earring image input -->
+                <div class="bg-removal-container earrings-field" id="leftEarringBgRemoval" style="display: none;">
+                    <div class="bg-removal-actions">
+                        <button type="button" class="bg-process-btn" id="removeLeftBgBtn">Remove Background</button>
+                    </div>
+                    <div class="bg-removal-preview" id="leftBgRemovalPreview" style="display: none;">
+                        <div class="preview-image-container">
+                            <img src="" alt="Original Image" class="preview-image" id="leftOriginalPreview">
+                            <div class="preview-label">Original</div>
+                        </div>
+                        <div class="preview-image-container">
+                            <img src="" alt="Processed Image" class="preview-image" id="leftProcessedPreview">
+                            <div class="preview-label">Background Removed</div>
+                        </div>
+                        <button type="button" class="bg-accept-btn" id="acceptLeftBgRemovalBtn">Use This Image</button>
+                    </div>
+                </div>
                 
                 <div class="form-group earrings-field" style="display: none;">
                     <label for="rightEarringImage">Right Earring Image</label>
                     <input type="file" class="form-control" id="rightEarringImage" name="rightEarringImage" accept="image/*">
+                </div>
+
+                <!-- For the right earring image input -->
+                <div class="bg-removal-container earrings-field" id="rightEarringBgRemoval" style="display: none;">
+                    <div class="bg-removal-actions">
+                        <button type="button" class="bg-process-btn" id="removeRightBgBtn">Remove Background</button>
+                    </div>
+                    <div class="bg-removal-preview" id="rightBgRemovalPreview" style="display: none;">
+                        <div class="preview-image-container">
+                            <img src="" alt="Original Image" class="preview-image" id="rightOriginalPreview">
+                            <div class="preview-label">Original</div>
+                        </div>
+                        <div class="preview-image-container">
+                            <img src="" alt="Processed Image" class="preview-image" id="rightProcessedPreview">
+                            <div class="preview-label">Background Removed</div>
+                        </div>
+                        <button type="button" class="bg-accept-btn" id="acceptRightBgRemovalBtn">Use This Image</button>
+                    </div>
+                </div>
+
+                <!-- Advanced properties section (hidden by default, only shown during edit) -->
+                <div id="advancedPropertiesSection" class="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200" style="display: none;">
+                    <h4 class="text-lg font-bold text-purple-800 mb-3">Fine-tune Properties</h4>
+                    <p class="text-sm text-gray-600 mb-4">Adjust these properties only if the jewelry doesn't appear correctly with default settings.</p>
+                    
+                    <div id="advancedPropertiesContainer">
+                        <!-- Property fields will be added here dynamically -->
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -423,6 +595,7 @@
         const API_ENDPOINTS = {
             GET_ALL: `${apiUrl}/jewelry`,
             JEWELRY_ACTIONS: `${apiUrl}/jewelry`, // Base endpoint for all jewelry actions
+            REMOVE_BACKGROUND: `${apiUrl}/remove-background`, // For background removal
             GET_UPLOAD_URL: `${apiUrl}/upload-url` // For S3 presigned URLs
         };
 
@@ -468,6 +641,13 @@
             submitBtn.textContent = 'Save Jewelry';
             jewelryForm.reset();
             jewelryId.value = '';
+            
+            // Hide the advanced properties section for new jewelry
+            const advancedSection = document.getElementById('advancedPropertiesSection');
+            if (advancedSection) {
+                advancedSection.style.display = 'none';
+            }
+            
             showModal();
         });
 
@@ -562,8 +742,24 @@
                     imageUrls.thumbnail = thumbnailUrl;
                 }
                 
-                // Create the jewelry data object with constants based on jewelry type
-                const jewelryData = createJewelryDataObject(jewelryTypeValue, jewelryName, imageUrls);
+                // Create the base jewelry data
+                let jewelryData = {
+                    name: jewelryName,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                // Add image URLs if they exist
+                Object.assign(jewelryData, imageUrls);
+                
+                if (isEditing) {
+                    // When editing, collect the advanced properties
+                    const advancedProps = collectAdvancedProperties(jewelryTypeValue);
+                    Object.assign(jewelryData, advancedProps);
+                } else {
+                    // For new jewelry, add the default constants based on type
+                    const constants = getDefaultConstants(jewelryTypeValue);
+                    Object.assign(jewelryData, constants);
+                }
                 
                 console.log('Jewelry data to submit:', jewelryData);
                 
@@ -613,6 +809,381 @@
                 console.error('API Error:', error);
                 showToast('Error', `Failed to save jewelry: ${error.message}`, null, 'error');
             }
+        });
+
+        // Function to get default constants based on jewelry type
+        function getDefaultConstants(jewelryType) {
+            const constants = {};
+            
+            switch(jewelryType) {
+                case 'tikka':
+                    Object.assign(constants, {
+                        type: 'single',
+                        landmark: 151,
+                        offset: { x: 0, y: 0 },
+                        defaultScale: 1.3,
+                        group: 'face',
+                        category: 'Face Jewelry'
+                    });
+                    break;
+                    
+                case 'earrings':
+                    Object.assign(constants, {
+                        type: 'earrings',
+                        landmarks: [177, 401],
+                        offset: { x: -5, y: 0 },
+                        defaultScale: 1.5,
+                        gap: 0,
+                        group: 'ear',
+                        category: 'Ear Jewelry'
+                    });
+                    break;
+                    
+                case 'necklace':
+                    Object.assign(constants, {
+                        type: 'necklace',
+                        offset: { x: 0, y: 0 },
+                        defaultScale: 0.55,
+                        group: 'neck',
+                        category: 'Neck Jewelry'
+                    });
+                    break;
+                    
+                case 'ring':
+                    Object.assign(constants, {
+                        type: 'hand',
+                        landmark: 'custom',
+                        fingerIndex: 8,
+                        handIndex: 0,
+                        offset: { x: 0, y: 0 },
+                        defaultScale: 0.2,
+                        group: 'hand',
+                        category: 'Hand Jewelry',
+                        subcategory: 'ring'
+                    });
+                    break;
+                    
+                case 'bangle':
+                    Object.assign(constants, {
+                        type: 'hand',
+                        landmark: 'custom',
+                        wristIndex: 0,
+                        handIndex: 0,
+                        offset: { x: 0, y: 0 },
+                        defaultScale: 0.35,
+                        group: 'hand',
+                        category: 'Hand Jewelry',
+                        subcategory: 'bangle'
+                    });
+                    break;
+            }
+            
+            return constants;
+        }
+
+        // Function to collect advanced properties from the form during edit
+        function collectAdvancedProperties(jewelryType) {
+            const props = {};
+            
+            // Get default scale if present
+            const defaultScaleEl = document.getElementById('defaultScale');
+            if (defaultScaleEl) {
+                props.defaultScale = parseFloat(defaultScaleEl.value);
+            }
+            
+            // Get offset values if present
+            const offsetXEl = document.getElementById('offsetX');
+            const offsetYEl = document.getElementById('offsetY');
+            if (offsetXEl && offsetYEl) {
+                props.offset = {
+                    x: parseInt(offsetXEl.value, 10),
+                    y: parseInt(offsetYEl.value, 10)
+                };
+            }
+            
+            // Type-specific properties
+            if (jewelryType === 'tikka') {
+                // For tikka - landmark
+                const landmarkEl = document.getElementById('landmark');
+                if (landmarkEl) {
+                    props.landmark = parseInt(landmarkEl.value, 10);
+                }
+            } 
+            else if (jewelryType === 'earrings') {
+                // For earrings - gap
+                const gapEl = document.getElementById('earringGap');
+                if (gapEl) {
+                    props.gap = parseInt(gapEl.value, 10);
+                }
+            }
+            else if (jewelryType === 'ring' || jewelryType === 'bangle') {
+                // For rings - fingerIndex
+                if (jewelryType === 'ring') {
+                    const fingerIndexEl = document.getElementById('fingerIndex');
+                    if (fingerIndexEl) {
+                        props.fingerIndex = parseInt(fingerIndexEl.value, 10);
+                    }
+                }
+                
+                // For both ring and bangle - handIndex
+                const handIndexEl = document.getElementById('handIndex');
+                if (handIndexEl) {
+                    props.handIndex = parseInt(handIndexEl.value, 10);
+                }
+            }
+            
+            return props;
+        }
+
+        // Function to extract additional properties from the edit form
+        function getAdditionalPropertiesFromForm() {
+            const props = {};
+            
+            // Get default scale if present
+            if (document.getElementById('defaultScale')) {
+                props.defaultScale = parseFloat(document.getElementById('defaultScale').value);
+            }
+            
+            // Get offset values if present
+            if (document.getElementById('offsetX') && document.getElementById('offsetY')) {
+                props.offset = {
+                    x: parseFloat(document.getElementById('offsetX').value),
+                    y: parseFloat(document.getElementById('offsetY').value)
+                };
+            }
+            
+            // Get landmark if present (for face jewelry)
+            if (document.getElementById('landmark')) {
+                props.landmark = parseInt(document.getElementById('landmark').value, 10);
+            }
+            
+            // Get gap if present (for earrings)
+            if (document.getElementById('earringGap')) {
+                props.gap = parseFloat(document.getElementById('earringGap').value);
+            }
+            
+            // For hand jewelry (rings and bangles)
+            if (document.getElementById('fingerIndex')) {
+                props.fingerIndex = parseInt(document.getElementById('fingerIndex').value, 10);
+            }
+            
+            if (document.getElementById('handIndex')) {
+                props.handIndex = parseInt(document.getElementById('handIndex').value, 10);
+            }
+            
+            return props;
+        }
+
+        // Function to handle file input changes and show/hide bg removal button
+        function handleFileInputChange(inputElement, bgRemovalContainer) {
+            inputElement.addEventListener('change', function() {
+                if (this.files && this.files.length > 0) {
+                    bgRemovalContainer.style.display = 'block';
+                } else {
+                    bgRemovalContainer.style.display = 'none';
+                }
+            });
+        }
+
+        
+        // Function to remove background from an image
+        async function removeBackground(file, previewOriginalImg, previewProcessedImg, previewContainer, processBtn) {
+            if (!file) {
+                showToast('Error', 'Please select an image first', null, 'error');
+                return;
+            }
+            
+            // Store the original button text first - move this outside of try block
+            const originalBtnText = processBtn.innerHTML;
+            
+            try {
+                // Disable button and show loading state
+                processBtn.disabled = true;
+                processBtn.innerHTML = '<div class="bg-remove-spinner"></div> Processing...';
+                
+                // Read file as base64
+                const reader = new FileReader();
+                
+                reader.onload = async (e) => {
+                    // Display original image
+                    previewOriginalImg.src = e.target.result;
+                    
+                    // Extract base64 data
+                    const base64Data = e.target.result.split(',')[1];
+                    
+                    // Send to Lambda function
+                    const response = await fetch(API_ENDPOINTS.REMOVE_BACKGROUND, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            image: base64Data,
+                            fileName: file.name
+                        })
+                    });
+                    
+                    // Parse response
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Display processed image
+                        previewProcessedImg.src = `data:image/png;base64,${result.image}`;
+                        previewContainer.style.display = 'flex';
+                        
+                        // Store the processed image data for later use
+                        previewProcessedImg.dataset.base64 = result.image;
+                        
+                        showToast('Success', 'Background removed successfully', null);
+                    } else {
+                        showToast('Error', result.message || 'Failed to remove background', null, 'error');
+                    }
+                };
+                
+                reader.onerror = () => {
+                    showToast('Error', 'Failed to read the image file', null, 'error');
+                };
+                
+                // Read the file
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Error removing background:', error);
+                showToast('Error', `Failed to remove background: ${error.message}`, null, 'error');
+            } finally {
+                // Reset button state
+                processBtn.disabled = false;
+                processBtn.innerHTML = originalBtnText;
+            }
+        }
+
+        // Function to convert base64 to file object
+        function base64ToFile(base64, filename) {
+            const arr = base64.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            
+            return new File([u8arr], filename, { type: mime });
+        }
+
+        // Function to use the processed image in the form
+        function useProcessedImage(fileInput, processedImg) {
+            // Get the base64 data
+            const base64Data = processedImg.dataset.base64;
+            
+            if (!base64Data) {
+                showToast('Error', 'Processed image data not found', null, 'error');
+                return;
+            }
+            
+            // Create a file object from the base64 data
+            const processedFile = base64ToFile(`data:image/png;base64,${base64Data}`, 'processed_image.png');
+            
+            // Create a new FileList-like object
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(processedFile);
+            
+            // Set the file input's files
+            fileInput.files = dataTransfer.files;
+            
+            // Trigger change event
+            const event = new Event('change', { bubbles: true });
+            fileInput.dispatchEvent(event);
+            
+            showToast('Success', 'Using background-removed image', null);
+        }
+
+        // Initialize background removal functionality
+        function initBackgroundRemoval() {
+            // Single image background removal
+            const jewelryImage = document.getElementById('jewelryImage');
+            const singleImageBgRemoval = document.getElementById('singleImageBgRemoval');
+            const removeBgBtn = document.getElementById('removeBgBtn');
+            const originalPreview = document.getElementById('originalPreview');
+            const processedPreview = document.getElementById('processedPreview');
+            const bgRemovalPreview = document.getElementById('bgRemovalPreview');
+            const acceptBgRemovalBtn = document.getElementById('acceptBgRemovalBtn');
+            
+            // Left earring background removal
+            const leftEarringImage = document.getElementById('leftEarringImage');
+            const leftEarringBgRemoval = document.getElementById('leftEarringBgRemoval');
+            const removeLeftBgBtn = document.getElementById('removeLeftBgBtn');
+            const leftOriginalPreview = document.getElementById('leftOriginalPreview');
+            const leftProcessedPreview = document.getElementById('leftProcessedPreview');
+            const leftBgRemovalPreview = document.getElementById('leftBgRemovalPreview');
+            const acceptLeftBgRemovalBtn = document.getElementById('acceptLeftBgRemovalBtn');
+            
+            // Right earring background removal
+            const rightEarringImage = document.getElementById('rightEarringImage');
+            const rightEarringBgRemoval = document.getElementById('rightEarringBgRemoval');
+            const removeRightBgBtn = document.getElementById('removeRightBgBtn');
+            const rightOriginalPreview = document.getElementById('rightOriginalPreview');
+            const rightProcessedPreview = document.getElementById('rightProcessedPreview');
+            const rightBgRemovalPreview = document.getElementById('rightBgRemovalPreview');
+            const acceptRightBgRemovalBtn = document.getElementById('acceptRightBgRemovalBtn');
+            
+            // Set up file input change listeners
+            handleFileInputChange(jewelryImage, singleImageBgRemoval);
+            handleFileInputChange(leftEarringImage, leftEarringBgRemoval);
+            handleFileInputChange(rightEarringImage, rightEarringBgRemoval);
+            
+            // Set up remove background button click handlers
+            removeBgBtn.addEventListener('click', () => {
+                removeBackground(
+                    jewelryImage.files[0],
+                    originalPreview,
+                    processedPreview,
+                    bgRemovalPreview,
+                    removeBgBtn
+                );
+            });
+            
+            removeLeftBgBtn.addEventListener('click', () => {
+                removeBackground(
+                    leftEarringImage.files[0],
+                    leftOriginalPreview,
+                    leftProcessedPreview,
+                    leftBgRemovalPreview,
+                    removeLeftBgBtn
+                );
+            });
+            
+            removeRightBgBtn.addEventListener('click', () => {
+                removeBackground(
+                    rightEarringImage.files[0],
+                    rightOriginalPreview,
+                    rightProcessedPreview,
+                    rightBgRemovalPreview,
+                    removeRightBgBtn
+                );
+            });
+            
+            // Set up accept button click handlers
+            acceptBgRemovalBtn.addEventListener('click', () => {
+                useProcessedImage(jewelryImage, processedPreview);
+                bgRemovalPreview.style.display = 'none';
+            });
+            
+            acceptLeftBgRemovalBtn.addEventListener('click', () => {
+                useProcessedImage(leftEarringImage, leftProcessedPreview);
+                leftBgRemovalPreview.style.display = 'none';
+            });
+            
+            acceptRightBgRemovalBtn.addEventListener('click', () => {
+                useProcessedImage(rightEarringImage, rightProcessedPreview);
+                rightBgRemovalPreview.style.display = 'none';
+            });
+        }
+
+        // Call the initialization function when the document is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize background removal functionality
+            initBackgroundRemoval();
         });
 
         // Helper function to upload a file to S3 via Lambda function
@@ -923,7 +1494,291 @@
                 document.getElementById('rightEarringImage').removeAttribute('required');
                 document.getElementById('jewelryThumbnail').removeAttribute('required');
                 
+                // Show advanced properties section
+                const advancedSection = document.getElementById('advancedPropertiesSection');
+                advancedSection.style.display = 'block';
+                
+                // Clear any previous advanced properties
+                const propertiesContainer = document.getElementById('advancedPropertiesContainer');
+                propertiesContainer.innerHTML = '';
+                
+                // Add the appropriate property fields based on jewelry type
+                populateAdvancedProperties(propertiesContainer, item);
+                
                 showModal();
+            }
+        }
+
+        function populateAdvancedProperties(container, item) {
+            // Add default scale adjustment for all jewelry types with smaller step size
+            const scaleGroup = document.createElement('div');
+            scaleGroup.className = 'form-group';
+            scaleGroup.innerHTML = `
+                <label for="defaultScale">Size Scale</label>
+                <input type="range" class="form-control" id="defaultScale" 
+                    min="0.1" max="3.0" step="0.05" value="${item.defaultScale || 1.0}">
+                <div class="flex justify-between">
+                    <span class="text-sm">Smaller (0.1x)</span>
+                    <span class="text-sm font-bold" id="scaleValue">${item.defaultScale || 1.0}x</span>
+                    <span class="text-sm">Larger (3.0x)</span>
+                </div>
+            `;
+            container.appendChild(scaleGroup);
+            
+            // Add event listener to update the display value
+            setTimeout(() => {
+                const scaleSlider = document.getElementById('defaultScale');
+                const scaleValue = document.getElementById('scaleValue');
+                if (scaleSlider && scaleValue) {
+                    scaleSlider.addEventListener('input', () => {
+                        // Display with 2 decimal places for more precision
+                        scaleValue.textContent = `${parseFloat(scaleSlider.value).toFixed(2)}x`;
+                    });
+                }
+            }, 0);
+            
+            // Add position adjustment for all jewelry types with smaller step size
+            const positionGroup = document.createElement('div');
+            positionGroup.className = 'form-group mt-4';
+            positionGroup.innerHTML = `
+                <label>Position Adjustment</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="offsetX" class="text-sm">Horizontal (X)</label>
+                        <input type="range" class="form-control" id="offsetX" 
+                            min="-50" max="50" step="1" value="${item.offset ? item.offset.x || 0 : 0}">
+                        <div class="flex justify-between">
+                            <span class="text-sm">Left</span>
+                            <span class="text-sm font-bold" id="offsetXValue">${item.offset ? item.offset.x || 0 : 0}</span>
+                            <span class="text-sm">Right</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="offsetY" class="text-sm">Vertical (Y)</label>
+                        <input type="range" class="form-control" id="offsetY" 
+                            min="-50" max="50" step="1" value="${item.offset ? item.offset.y || 0 : 0}">
+                        <div class="flex justify-between">
+                            <span class="text-sm">Up</span>
+                            <span class="text-sm font-bold" id="offsetYValue">${item.offset ? item.offset.y || 0 : 0}</span>
+                            <span class="text-sm">Down</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(positionGroup);
+            
+            // Add event listeners to update the display values
+            setTimeout(() => {
+                const offsetXSlider = document.getElementById('offsetX');
+                const offsetXValue = document.getElementById('offsetXValue');
+                const offsetYSlider = document.getElementById('offsetY');
+                const offsetYValue = document.getElementById('offsetYValue');
+                
+                if (offsetXSlider && offsetXValue) {
+                    offsetXSlider.addEventListener('input', () => {
+                        offsetXValue.textContent = offsetXSlider.value;
+                    });
+                }
+                
+                if (offsetYSlider && offsetYValue) {
+                    offsetYSlider.addEventListener('input', () => {
+                        offsetYValue.textContent = offsetYSlider.value;
+                    });
+                }
+            }, 0);
+            
+            // Type-specific properties
+            if (item.type === 'single' && item.group === 'face') {
+                // For tikka - landmark point
+                const landmarkGroup = document.createElement('div');
+                landmarkGroup.className = 'form-group mt-4';
+                landmarkGroup.innerHTML = `
+                    <label for="landmark">Landmark Point</label>
+                    <select class="form-control" id="landmark">
+                        <option value="151" ${item.landmark === 151 ? 'selected' : ''}>Center Forehead (151)</option>
+                        <option value="10" ${item.landmark === 10 ? 'selected' : ''}>Top Forehead (10)</option>
+                        <option value="9" ${item.landmark === 9 ? 'selected' : ''}>Mid-Forehead (9)</option>
+                    </select>
+                    <small class="text-gray-500 block mt-1">Face mesh reference point for positioning</small>
+                `;
+                container.appendChild(landmarkGroup);
+            } 
+            else if (item.type === 'earrings') {
+                // For earrings - gap adjustment with smaller step size
+                const gapGroup = document.createElement('div');
+                gapGroup.className = 'form-group mt-4';
+                gapGroup.innerHTML = `
+                    <label for="earringGap">Earring Gap</label>
+                    <input type="range" class="form-control" id="earringGap" 
+                        min="-10" max="30" step="0.5" value="${item.gap || 0}">
+                    <div class="flex justify-between">
+                        <span class="text-sm">Closer to ear</span>
+                        <span class="text-sm font-bold" id="gapValue">${item.gap || 0}</span>
+                        <span class="text-sm">Further from ear</span>
+                    </div>
+                    <small class="text-gray-500 block mt-1">Adjusts the distance between earring and ear lobe</small>
+                `;
+                container.appendChild(gapGroup);
+                
+                // Add event listener to update the display value
+                setTimeout(() => {
+                    const gapSlider = document.getElementById('earringGap');
+                    const gapValue = document.getElementById('gapValue');
+                    if (gapSlider && gapValue) {
+                        gapSlider.addEventListener('input', () => {
+                            // Display with 1 decimal place for more precision
+                            gapValue.textContent = parseFloat(gapSlider.value).toFixed(1);
+                        });
+                    }
+                }, 0);
+            } 
+            else if (item.type === 'hand') {
+                // Hand jewelry (rings, bangles)
+                if (item.subcategory === 'ring') {
+                    const fingerGroup = document.createElement('div');
+                    fingerGroup.className = 'form-group mt-4';
+                    fingerGroup.innerHTML = `
+                        <label for="fingerIndex">Finger Selection</label>
+                        <select class="form-control" id="fingerIndex">
+                            <option value="8" ${item.fingerIndex === 8 ? 'selected' : ''}>Index Finger</option>
+                            <option value="12" ${item.fingerIndex === 12 ? 'selected' : ''}>Middle Finger</option>
+                            <option value="16" ${item.fingerIndex === 16 ? 'selected' : ''}>Ring Finger</option>
+                            <option value="20" ${item.fingerIndex === 20 ? 'selected' : ''}>Pinky Finger</option>
+                        </select>
+                        <small class="text-gray-500 block mt-1">Which finger the ring will appear on</small>
+                    `;
+                    container.appendChild(fingerGroup);
+                }
+                
+                const handGroup = document.createElement('div');
+                handGroup.className = 'form-group mt-4';
+                handGroup.innerHTML = `
+                    <label for="handIndex">Hand Selection</label>
+                    <select class="form-control" id="handIndex">
+                        <option value="0" ${item.handIndex === 0 ? 'selected' : ''}>First Detected Hand</option>
+                        <option value="1" ${item.handIndex === 1 ? 'selected' : ''}>Second Detected Hand</option>
+                    </select>
+                    <small class="text-gray-500 block mt-1">Which hand the jewelry will appear on</small>
+                `;
+                container.appendChild(handGroup);
+            }
+        }
+
+        function createAdditionalPropertyFields(item) {
+            // Create a container for additional properties
+            const propertiesContainer = document.createElement('div');
+            propertiesContainer.id = 'additionalProperties';
+            propertiesContainer.className = 'mt-4 p-4 bg-gray-50 rounded-lg';
+            
+            // Add a title for the section
+            const sectionTitle = document.createElement('h4');
+            sectionTitle.className = 'font-bold text-lg mb-3';
+            sectionTitle.textContent = 'Advanced Properties';
+            propertiesContainer.appendChild(sectionTitle);
+            
+            // Default Scale field - applies to all jewelry types
+            const defaultScaleGroup = document.createElement('div');
+            defaultScaleGroup.className = 'form-group';
+            defaultScaleGroup.innerHTML = `
+                <label for="defaultScale">Default Scale</label>
+                <input type="number" step="0.1" min="0.1" max="5" class="form-control" id="defaultScale" 
+                    value="${item.defaultScale || 1.0}">
+                <small class="text-gray-500">Adjusts the base size of the jewelry</small>
+            `;
+            propertiesContainer.appendChild(defaultScaleGroup);
+            
+            // Offset fields - apply to all jewelry types
+            const offsetGroup = document.createElement('div');
+            offsetGroup.className = 'form-group';
+            offsetGroup.innerHTML = `
+                <label>Position Offset</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="offsetX" class="text-sm">X Offset</label>
+                        <input type="number" step="1" class="form-control" id="offsetX" 
+                            value="${item.offset ? item.offset.x || 0 : 0}">
+                    </div>
+                    <div>
+                        <label for="offsetY" class="text-sm">Y Offset</label>
+                        <input type="number" step="1" class="form-control" id="offsetY" 
+                            value="${item.offset ? item.offset.y || 0 : 0}">
+                    </div>
+                </div>
+                <small class="text-gray-500">Fine-tune the position of the jewelry</small>
+            `;
+            propertiesContainer.appendChild(offsetGroup);
+            
+            // Type-specific properties
+            if (item.type === 'single' && item.group === 'face') {
+                // Face jewelry (Tikka) - landmark
+                const landmarkGroup = document.createElement('div');
+                landmarkGroup.className = 'form-group';
+                landmarkGroup.innerHTML = `
+                    <label for="landmark">Landmark Point</label>
+                    <input type="number" class="form-control" id="landmark" 
+                        value="${item.landmark || 151}">
+                    <small class="text-gray-500">Face mesh reference point (151 is forehead center)</small>
+                `;
+                propertiesContainer.appendChild(landmarkGroup);
+            } 
+            else if (item.type === 'earrings') {
+                // Earrings - gap
+                const gapGroup = document.createElement('div');
+                gapGroup.className = 'form-group';
+                gapGroup.innerHTML = `
+                    <label for="earringGap">Earring Gap</label>
+                    <input type="number" step="1" class="form-control" id="earringGap" 
+                        value="${item.gap || 0}">
+                    <small class="text-gray-500">Adjusts spacing between ear and earring</small>
+                `;
+                propertiesContainer.appendChild(gapGroup);
+            } 
+            else if (item.type === 'hand') {
+                // Hand jewelry (rings, bangles)
+                if (item.subcategory === 'ring') {
+                    const fingerGroup = document.createElement('div');
+                    fingerGroup.className = 'form-group';
+                    fingerGroup.innerHTML = `
+                        <label for="fingerIndex">Finger Index</label>
+                        <select class="form-control" id="fingerIndex">
+                            <option value="8" ${item.fingerIndex === 8 ? 'selected' : ''}>Index Finger (8)</option>
+                            <option value="12" ${item.fingerIndex === 12 ? 'selected' : ''}>Middle Finger (12)</option>
+                            <option value="16" ${item.fingerIndex === 16 ? 'selected' : ''}>Ring Finger (16)</option>
+                            <option value="20" ${item.fingerIndex === 20 ? 'selected' : ''}>Pinky Finger (20)</option>
+                        </select>
+                        <small class="text-gray-500">Which finger to place the ring on</small>
+                    `;
+                    propertiesContainer.appendChild(fingerGroup);
+                }
+                
+                const handGroup = document.createElement('div');
+                handGroup.className = 'form-group';
+                handGroup.innerHTML = `
+                    <label for="handIndex">Hand Index</label>
+                    <select class="form-control" id="handIndex">
+                        <option value="0" ${item.handIndex === 0 ? 'selected' : ''}>First Detected Hand (0)</option>
+                        <option value="1" ${item.handIndex === 1 ? 'selected' : ''}>Second Detected Hand (1)</option>
+                    </select>
+                    <small class="text-gray-500">Which hand to place the jewelry on</small>
+                `;
+                propertiesContainer.appendChild(handGroup);
+            }
+            
+            // Insert the container before the submit button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.parentNode.insertBefore(propertiesContainer, submitBtn);
+        }
+
+        function cleanupAdditionalPropertyFields() {
+            const container = document.getElementById('additionalProperties');
+            if (container) {
+                container.remove();
+            }
+            
+            // Re-enable the unique ID field
+            const uniqueIdField = document.getElementById('uniqueJewelryId');
+            if (uniqueIdField) {
+                uniqueIdField.removeAttribute('disabled');
             }
         }
 
@@ -1032,11 +1887,20 @@
 
         // Helper functions to show/hide modal
         function showModal() {
+            // Clean up any existing additional property fields
+            cleanupAdditionalPropertyFields();
             jewelryModal.style.display = 'flex';
         }
 
         function hideModal() {
             jewelryModal.style.display = 'none';
+            cleanupAdditionalPropertyFields();
+            
+            // Hide the advanced properties section
+            const advancedSection = document.getElementById('advancedPropertiesSection');
+            if (advancedSection) {
+                advancedSection.style.display = 'none';
+            }
         }
 
         console.log('Jewelry Management System initialized');
