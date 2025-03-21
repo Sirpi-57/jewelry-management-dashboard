@@ -413,6 +413,34 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        .modal {
+            background-color: white;
+            border-radius: 10px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh; /* Limit the height to 90% of viewport height */
+            padding: 20px;
+            overflow: hidden; /* Hide overflow for the modal itself */
+            display: flex;
+            flex-direction: column; /* Use flex column layout */
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            flex-shrink: 0; /* Prevent the header from shrinking */
+        }
+
+        .modal-body {
+            overflow-y: auto; /* Make the content scrollable */
+            padding-right: 5px; /* Add some padding for the scrollbar */
+            flex-grow: 1; /* Allow it to grow and take available space */
+        }
     </style>
 </head>
 <body>
@@ -457,13 +485,15 @@
                 <h3 class="modal-title" id="modalTitle">Add New Jewelry</h3>
                 <button class="close-modal" id="closeModal">&times;</button>
             </div>
-            <form id="jewelryForm">
-                <input type="hidden" id="jewelryId" name="jewelryId">
+            <div class="modal-body">
+                <form id="jewelryForm">
+                    <!-- Your form contents remain the same -->
+                    <input type="hidden" id="jewelryId" name="jewelryId">
 
-                <div class="form-group">
-                    <label for="uniqueJewelryId">Unique Jewelry ID</label>
-                    <input type="text" class="form-control" id="uniqueJewelryId" name="uniqueJewelryId" placeholder="Enter unique jewelry ID" required>
-                </div>
+                    <div class="form-group">
+                        <label for="uniqueJewelryId">Unique Jewelry ID</label>
+                        <input type="text" class="form-control" id="uniqueJewelryId" name="uniqueJewelryId" placeholder="Enter unique jewelry ID" required>
+                    </div>
                 
                 <div class="form-group">
                     <label for="jewelryType">Jewelry Type</label>
@@ -693,9 +723,10 @@
             showToast('Processing', 'Processing your request...', null, 'info');
             
             try {
-                // Get the jewelry type and name from the form
+                // Get the jewelry type, name, and unique ID from the form
                 const jewelryTypeValue = document.getElementById('jewelryType').value;
                 const jewelryName = document.getElementById('jewelryName').value;
+                const uniqueJewelryId = document.getElementById('uniqueJewelryId').value; // Get the unique ID
                 
                 // Determine if we're editing or creating
                 const isEditing = jewelryId.value !== '';
@@ -764,6 +795,7 @@
                 console.log('Jewelry data to submit:', jewelryData);
                 
                 // Call the appropriate API endpoint based on whether we're creating or updating
+                // Call the appropriate API endpoint based on whether we're creating or updating
                 let response;
                 if (isEditing) {
                     response = await fetch(`${API_ENDPOINTS.JEWELRY_ACTIONS}?action=update&jewelryId=${jewelryId.value}`, {
@@ -774,7 +806,8 @@
                         body: JSON.stringify(jewelryData)
                     });
                 } else {
-                    response = await fetch(API_ENDPOINTS.JEWELRY_ACTIONS, {
+                    // For new jewelry, pass the uniqueId as a query parameter
+                    response = await fetch(`${API_ENDPOINTS.JEWELRY_ACTIONS}?uniqueId=${uniqueJewelryId}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1468,6 +1501,11 @@
                 
                 jewelryId.value = item.jewelryId;
                 document.getElementById('jewelryName').value = item.name;
+
+                // Set the unique ID field and disable it for editing
+                const uniqueIdField = document.getElementById('uniqueJewelryId');
+                uniqueIdField.value = item.jewelryId;
+                uniqueIdField.disabled = true; // Disable it because this is our primary key
                 
                 // Set jewelry type based on category/type
                 if (item.type === 'single' && item.group === 'face') {
@@ -1895,6 +1933,12 @@
         function hideModal() {
             jewelryModal.style.display = 'none';
             cleanupAdditionalPropertyFields();
+            
+            // Enable the uniqueJewelryId field when closing the modal
+            const uniqueIdField = document.getElementById('uniqueJewelryId');
+            if (uniqueIdField) {
+                uniqueIdField.disabled = false;
+            }
             
             // Hide the advanced properties section
             const advancedSection = document.getElementById('advancedPropertiesSection');
